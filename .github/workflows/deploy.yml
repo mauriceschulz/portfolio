@@ -1,0 +1,57 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Create deploy script
+        run: |
+          cat > deploy.sh << 'EOF'
+          #!/bin/bash
+          ssh -o StrictHostKeyChecking=no root@${{ secrets.SERVER_IP }} "
+            mkdir -p /opt/portfolio
+            docker compose -f /opt/portfolio/docker-compose.yml down || true
+          "
+          
+          # Copy files via scp
+          scp -o StrictHostKeyChecking=no -r \
+            .github \
+            Dockerfile \
+            docker-compose.yml \
+            nginx.conf \
+            app \
+            bootstrap \
+            config \
+            database \
+            public \
+            resources \
+            routes \
+            storage \
+            tests \
+            vendor \
+            root@${{ secrets.SERVER_IP }}:/opt/portfolio/
+          
+          ssh -o StrictHostKeyChecking=no root@${{ secrets.SERVER_IP }} "
+            cd /opt/portfolio &&
+            cp .env.example .env &&
+            docker compose up -d --build
+          "
+          EOF
+          chmod +x deploy.sh
+
+      - name: Run deploy
+        run: ./deploy.sh
