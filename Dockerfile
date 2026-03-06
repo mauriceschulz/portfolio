@@ -8,21 +8,10 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     zip \
     unzip \
-    libpq-dev
-
-RUN docker-php-ext-install pdo pdo_pgsql
-
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+    libpq-dev \
+    && docker-php-ext-install pdo pdo_pgsql
 
 WORKDIR /var/www/html
-
-COPY . /var/www/html
-
-RUN composer install --no-dev --optimize-autoloader
-
-RUN php artisan config:cache && \
-    php artisan route:cache && \
-    php artisan view:cache
 
 EXPOSE 9000
 
