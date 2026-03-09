@@ -56,9 +56,7 @@ jobs:
             echo 'APP_KEY=${{ secrets.APP_KEY }}' >> .env && 
             docker compose up -d --build
           "
-          ssh -o StrictHostKeyChecking=no root@${{ secrets.SERVER_IP }} "
-            docker exec app composer install
-          "
+          
           EOF
           chmod +x deploy.sh
 
