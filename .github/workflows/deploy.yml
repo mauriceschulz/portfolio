@@ -30,9 +30,14 @@ jobs:
           # Copy files via scp
           scp -o StrictHostKeyChecking=no -r \
             .github \
+            .env.example \
             Dockerfile \
             docker-compose.yml \
             nginx.conf \
+            composer.json \
+            composer.lock \
+            phpunit.xml \
+            vite.config.js \
             app \
             bootstrap \
             config \
@@ -42,13 +47,17 @@ jobs:
             routes \
             storage \
             tests \
-            vendor \
             root@${{ secrets.SERVER_IP }}:/opt/portfolio/
           
           ssh -o StrictHostKeyChecking=no root@${{ secrets.SERVER_IP }} "
             cd /opt/portfolio &&
-            cp .env.example .env &&
+            cp .env.example .env && 
+            echo 'DB_PASSWORD=${{ secrets.DB_PASSWORD }}' >> .env &&
+            echo 'APP_KEY=${{ secrets.APP_KEY }}' >> .env && 
             docker compose up -d --build
+          "
+          ssh -o StrictHostKeyChecking=no root@${{ secrets.SERVER_IP }} "
+            docker exec app composer install
           "
           EOF
           chmod +x deploy.sh
