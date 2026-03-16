@@ -37,6 +37,8 @@ jobs:
             composer.json \
             composer.lock \
             phpunit.xml \
+            package.json \
+            package-lock.json \
             vite.config.js \
             app \
             bootstrap \
