@@ -29,7 +29,9 @@ jobs:
             cd /opt/portfolio &&
             git remote set-url origin git@github.com:mauriceschulz/portfolio.git &&
             git pull origin main &&
-            mkdir -p storage/framework/views storage/framework/cache storage/framework/sessions storage/logs bootstrap/cache &&
+            mkdir -p storage/framework/views storage/framework/cache storage/framework/sessions storage/logs bootstrap/cache public/build public/hot &&
+            chmod -R 775 storage bootstrap/cache public/build public/hot &&
+            chown -R www-data:www-data storage bootstrap/cache public/build public/hot &&
             chmod -R 775 storage bootstrap/cache &&
             chown -R www-data:www-data storage bootstrap/cache &&
             cp .env.example .env &&
