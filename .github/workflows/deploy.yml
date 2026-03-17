@@ -29,6 +29,9 @@ jobs:
             cd /opt/portfolio &&
             git remote set-url origin git@github.com:mauriceschulz/portfolio.git &&
             git pull origin main &&
+            mkdir -p storage/framework/views storage/framework/cache storage/framework/sessions storage/logs bootstrap/cache &&
+            chmod -R 775 storage bootstrap/cache &&
+            chown -R www-data:www-data storage bootstrap/cache &&
             cp .env.example .env &&
             echo 'DB_PASSWORD=${{ secrets.DB_PASSWORD }}' >> .env &&
             echo 'APP_KEY=${{ secrets.APP_KEY }}' >> .env &&
