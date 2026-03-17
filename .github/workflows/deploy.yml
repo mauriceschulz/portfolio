@@ -18,49 +18,13 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Create deploy script
+      - name: Deploy
         run: |
-          cat > deploy.sh << 'EOF'
-          #!/bin/bash
-          ssh -o StrictHostKeyChecking=no root@${{ secrets.SERVER_IP }} "
-            mkdir -p /opt/portfolio
-            docker compose -f /opt/portfolio/docker-compose.yml down || true
-          "
-          
-          # Copy files via scp
-          scp -o StrictHostKeyChecking=no -r \
-            .github \
-            .env.example \
-            Dockerfile \
-            docker-compose.yml \
-            nginx.conf \
-            composer.json \
-            composer.lock \
-            phpunit.xml \
-            package.json \
-            package-lock.json \
-            vite.config.js \
-            app \
-            bootstrap \
-            config \
-            database \
-            public \
-            resources \
-            routes \
-            storage \
-            tests \
-            root@${{ secrets.SERVER_IP }}:/opt/portfolio/
-          
           ssh -o StrictHostKeyChecking=no root@${{ secrets.SERVER_IP }} "
             cd /opt/portfolio &&
-            cp .env.example .env && 
+            git pull origin main &&
+            cp .env.example .env &&
             echo 'DB_PASSWORD=${{ secrets.DB_PASSWORD }}' >> .env &&
-            echo 'APP_KEY=${{ secrets.APP_KEY }}' >> .env && 
+            echo 'APP_KEY=${{ secrets.APP_KEY }}' >> .env &&
             docker compose up -d --build
           "
-          
-          EOF
-          chmod +x deploy.sh
-
-      - name: Run deploy
-        run: ./deploy.sh
