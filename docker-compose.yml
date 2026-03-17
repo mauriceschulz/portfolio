@@ -15,15 +15,15 @@ services:
       - db
 
   nginx:
-    image: nginx:alpine
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    image: portfolio-nginx
     container_name: portfolio-nginx
     restart: unless-stopped
     ports:
       - "80:80"
       - "443:443"
-    volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf
-      - ./ssl:/etc/nginx/ssl
     networks:
       - portfolio-network
     depends_on:
