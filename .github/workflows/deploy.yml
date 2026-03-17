@@ -8,26 +8,26 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup SSH
+      - name: Setup SSH agent
         uses: webfactory/ssh-agent@v0.8.0
         with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          ssh-private-key: |
+            ${{ secrets.SSH_PRIVATE_KEY }}
+            ${{ secrets.CLONE_GITHUB_PRIVATE_KEY }}
 
-      - name: Deploy
+      - name: Deploy via forwarded SSH agent
         run: |
-          ssh -o StrictHostKeyChecking=no root@${{ secrets.SERVER_IP }} "
-            mkdir -p ~/.ssh
-            echo '${{ secrets.CLONE_GITHUB_PRIVATE_KEY }}' > ~/.ssh/id_ed25519
-            chmod 600 ~/.ssh/id_ed25519
-            ssh-keyscan github.com >> ~/.ssh/known_hosts 2>/dev/null || true
-          "
-          ssh -o StrictHostKeyChecking=no root@${{ secrets.SERVER_IP }} "
+          ssh -A -o StrictHostKeyChecking=no root@${{ secrets.SERVER_IP }} "
+            mkdir -p ~/.ssh &&
+            chmod 700 ~/.ssh &&
+            ssh-keyscan github.com >> ~/.ssh/known_hosts 2>/dev/null || true &&
             cd /opt/portfolio &&
+            git remote set-url origin git@github.com:mauriceschulz/portfolio.git &&
             git pull origin main &&
             cp .env.example .env &&
             echo 'DB_PASSWORD=${{ secrets.DB_PASSWORD }}' >> .env &&
