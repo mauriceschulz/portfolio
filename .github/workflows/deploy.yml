@@ -21,6 +21,12 @@ jobs:
       - name: Deploy
         run: |
           ssh -o StrictHostKeyChecking=no root@${{ secrets.SERVER_IP }} "
+            mkdir -p ~/.ssh
+            echo '${{ secrets.CLONE_GITHUB_PRIVATE_KEY }}' > ~/.ssh/id_ed25519
+            chmod 600 ~/.ssh/id_ed25519
+            ssh-keyscan github.com >> ~/.ssh/known_hosts 2>/dev/null || true
+          "
+          ssh -o StrictHostKeyChecking=no root@${{ secrets.SERVER_IP }} "
             cd /opt/portfolio &&
             git pull origin main &&
             cp .env.example .env &&
