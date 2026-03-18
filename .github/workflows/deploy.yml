@@ -28,7 +28,8 @@ jobs:
             ssh-keyscan github.com >> ~/.ssh/known_hosts 2>/dev/null || true &&
             cd /opt/portfolio &&
             git remote set-url origin git@github.com:mauriceschulz/portfolio.git &&
-            git pull origin main &&
+            git fetch origin &&
+            git reset --hard origin/main &&
             mkdir -p storage/framework/views storage/framework/cache storage/framework/sessions storage/logs bootstrap/cache &&
             chmod -R 775 storage bootstrap/cache &&
             chown -R www-data:www-data storage bootstrap/cache &&
