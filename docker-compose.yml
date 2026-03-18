@@ -10,10 +10,9 @@ services:
     restart: unless-stopped
     working_dir: /var/www/html
     volumes:
+      - portfolio-public:/var/www/html/public
       - ./storage:/var/www/html/storage
       - ./bootstrap/cache:/var/www/html/bootstrap/cache
-      - ./public/build:/var/www/html/public/build
-      - ./public/hot:/var/www/html/public/hot
     networks:
       - portfolio-network
     depends_on:
@@ -31,6 +30,7 @@ services:
       - "443:443"
     volumes:
       - /etc/portfolio/ssl:/etc/nginx/ssl:ro
+      - portfolio-public:/var/www/html/public
     networks:
       - portfolio-network
     depends_on:
@@ -40,10 +40,6 @@ services:
     image: postgres:16-alpine
     container_name: portfolio-db
     restart: unless-stopped
-    environment:
-      POSTGRES_DB: portfolio
-      POSTGRES_USER: portfolio
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - db-data:/var/lib/postgresql/data
     networks:
@@ -55,3 +51,4 @@ networks:
 
 volumes:
   db-data:
+  portfolio-public:
