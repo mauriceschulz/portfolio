@@ -12,7 +12,7 @@
             COMING SOON
         </h1>
         <p class="text-lg md:text-xl text-neutral-500 font-light">
-            Meine Portfolio-App ist in Arbeit.
+            Mein Portfolio ist in Arbeit.
         </p>
         <p class="mt-8 text-xs uppercase tracking-[0.3em] text-neutral-600">
             Maurice Schulz
