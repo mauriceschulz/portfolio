@@ -1,0 +1,395 @@
+@layer base {
+    body {
+        min-height: 100vh;
+        margin: 0;
+        background: #111313;
+        color: #f7f3ea;
+        font-family: var(--font-sans);
+    }
+
+    button,
+    select {
+        font: inherit;
+    }
+}
+
+@layer components {
+    .chess-shell {
+        min-height: 100vh;
+        background:
+            linear-gradient(135deg, rgba(177, 71, 55, 0.18), transparent 34%),
+            linear-gradient(225deg, rgba(36, 112, 109, 0.2), transparent 38%),
+            #111313;
+        padding: clamp(18px, 3vw, 38px);
+    }
+
+    .chess-hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 24px;
+        align-items: end;
+        max-width: 1280px;
+        margin: 0 auto 24px;
+    }
+
+    .chess-back {
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
+        color: #bdb7aa;
+        text-decoration: none;
+        font-size: 14px;
+        margin-bottom: 34px;
+    }
+
+    .chess-kicker,
+    .eyebrow {
+        margin: 0 0 10px;
+        color: #caa15f;
+        font-size: 12px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+    }
+
+    .chess-hero h1 {
+        margin: 0;
+        font-size: clamp(44px, 8vw, 104px);
+        line-height: 0.92;
+        letter-spacing: 0;
+    }
+
+    .chess-copy {
+        max-width: 640px;
+        margin: 18px 0 0;
+        color: #cfc8ba;
+        font-size: clamp(16px, 2vw, 20px);
+        line-height: 1.6;
+    }
+
+    .chess-stats {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(100px, 1fr));
+        gap: 1px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .chess-stats div {
+        min-width: 0;
+        background: rgba(20, 23, 22, 0.82);
+        padding: 16px;
+    }
+
+    .chess-stats span,
+    .field span {
+        display: block;
+        color: #918b80;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+    }
+
+    .chess-stats strong {
+        display: block;
+        margin-top: 8px;
+        color: #f7f3ea;
+        font-size: 18px;
+    }
+
+    .chess-workspace {
+        display: grid;
+        grid-template-columns: minmax(320px, 780px) minmax(300px, 420px);
+        gap: 24px;
+        align-items: start;
+        max-width: 1280px;
+        margin: 0 auto;
+    }
+
+    .board-panel,
+    .control-panel {
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 8px;
+        background: rgba(18, 20, 20, 0.78);
+        box-shadow: 0 24px 70px rgba(0, 0, 0, 0.26);
+    }
+
+    .board-panel {
+        padding: clamp(14px, 2vw, 24px);
+    }
+
+    .board-header {
+        display: flex;
+        align-items: start;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 14px;
+    }
+
+    .board-header h2,
+    .section-title h2 {
+        margin: 0;
+        font-size: 24px;
+        letter-spacing: 0;
+    }
+
+    .section-title.compact h2 {
+        font-size: 18px;
+    }
+
+    .status-pill {
+        flex: 0 0 auto;
+        border: 1px solid rgba(202, 161, 95, 0.42);
+        border-radius: 999px;
+        padding: 8px 12px;
+        color: #f3d7a5;
+        font-size: 13px;
+        line-height: 1;
+    }
+
+    .status-pill.is-error {
+        border-color: rgba(231, 103, 83, 0.58);
+        color: #ffb3a4;
+    }
+
+    .board-wrap {
+        display: grid;
+        grid-template-columns: 22px minmax(0, 1fr);
+        grid-template-rows: minmax(0, 1fr) 22px;
+        gap: 8px;
+        align-items: stretch;
+    }
+
+    .rank-files {
+        display: grid;
+        grid-template-rows: repeat(8, 1fr);
+        color: #8f887c;
+        font-size: 13px;
+        line-height: 1;
+        text-align: center;
+    }
+
+    .rank-files span,
+    .file-labels span {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .file-labels {
+        grid-column: 2;
+        display: grid;
+        grid-template-columns: repeat(8, 1fr);
+        color: #8f887c;
+        font-size: 13px;
+        line-height: 1;
+    }
+
+    .chess-board {
+        display: grid;
+        grid-template-columns: repeat(8, minmax(0, 1fr));
+        aspect-ratio: 1;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 8px;
+        background: #1e201d;
+    }
+
+    .square {
+        position: relative;
+        display: grid;
+        place-items: center;
+        width: 100%;
+        min-width: 0;
+        aspect-ratio: 1;
+        border: 0;
+        color: #171716;
+        cursor: pointer;
+    }
+
+    .square span {
+        position: relative;
+        z-index: 1;
+        font-size: clamp(28px, 7vw, 68px);
+        line-height: 1;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.22);
+    }
+
+    .square.is-light {
+        background: #e3d6bd;
+    }
+
+    .square.is-dark {
+        background: #6f8d86;
+    }
+
+    .square.is-selected {
+        outline: 4px solid #d79d47;
+        outline-offset: -4px;
+    }
+
+    .square.is-target::after {
+        content: '';
+        position: absolute;
+        width: 24%;
+        aspect-ratio: 1;
+        border-radius: 999px;
+        background: rgba(20, 20, 18, 0.34);
+    }
+
+    .square.is-last-move::before {
+        content: '';
+        position: absolute;
+        inset: 8%;
+        border: 2px solid rgba(234, 196, 108, 0.7);
+        border-radius: 6px;
+    }
+
+    .captured-row {
+        display: flex;
+        align-items: center;
+        min-height: 30px;
+        gap: 4px;
+        color: #d7cdbb;
+        font-size: 24px;
+    }
+
+    .captured-row--top {
+        margin-bottom: 8px;
+    }
+
+    .captured-empty {
+        color: #6f6a61;
+        font-size: 14px;
+    }
+
+    .control-panel {
+        display: grid;
+        gap: 1px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .panel-section {
+        background: rgba(18, 20, 20, 0.86);
+        padding: 20px;
+    }
+
+    .segmented {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4px;
+        margin-top: 18px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 8px;
+        padding: 4px;
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .segmented button,
+    .primary-button {
+        min-height: 42px;
+        border-radius: 6px;
+        border: 1px solid transparent;
+    }
+
+    .segmented button {
+        background: transparent;
+        color: #cfc8ba;
+    }
+
+    .segmented button.is-active {
+        background: #efe6d3;
+        color: #141414;
+    }
+
+    .button-row {
+        margin-top: 18px;
+    }
+
+    .primary-button {
+        width: 100%;
+        background: #caa15f;
+        color: #151412;
+    }
+
+    .move-list {
+        display: grid;
+        gap: 8px;
+        max-height: 280px;
+        overflow: auto;
+        margin: 16px 0 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .move-list li {
+        display: grid;
+        grid-template-columns: 36px 1fr 1fr;
+        gap: 8px;
+        align-items: center;
+        min-height: 34px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        color: #bfb7aa;
+        font-size: 14px;
+    }
+
+    .move-list strong {
+        color: #f7f3ea;
+        font-weight: 500;
+    }
+
+    .move-list .empty-moves {
+        grid-template-columns: 1fr;
+        color: #8f887c;
+    }
+
+    .fen-box {
+        display: block;
+        overflow-wrap: anywhere;
+        margin-top: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 6px;
+        background: #101211;
+        padding: 12px;
+        color: #cfc8ba;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+}
+
+@media (max-width: 980px) {
+    .chess-hero,
+    .chess-workspace {
+        grid-template-columns: 1fr;
+    }
+
+    .chess-stats {
+        width: 100%;
+    }
+}
+
+@media (max-width: 640px) {
+    .chess-shell {
+        padding: 14px;
+    }
+
+    .chess-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .board-header {
+        display: grid;
+    }
+
+    .board-wrap {
+        grid-template-columns: 18px minmax(0, 1fr);
+        gap: 5px;
+    }
+
+    .square span {
+        font-size: clamp(24px, 10vw, 42px);
+    }
+}

@@ -17,6 +17,9 @@
         <p class="mt-8 text-xs uppercase tracking-[0.3em] text-neutral-600">
             Maurice Schulz
         </p>
+        <a href="{{ route('chess') }}" class="mt-10 inline-flex items-center justify-center rounded border border-neutral-700 px-5 py-3 text-sm uppercase tracking-[0.18em] text-neutral-300 transition hover:border-neutral-500 hover:text-white">
+            Chess page
+        </a>
     </div>
 </body>
 </html>
