@@ -1,4 +1,5 @@
 import { Chess } from 'chess.js';
+import '../css/chess.css';
 import { createGame, makeMove } from './chess-api';
 
 const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];

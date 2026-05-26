@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Chess Engine | Maurice Schulz</title>
-    @vite(['resources/css/app.css', 'resources/css/chess.css', 'resources/js/chess-page.js'])
+    @vite(['resources/css/app.css', 'resources/js/chess-page.js'])
 </head>
 <body>
     <main class="chess-shell" data-chess-app>
