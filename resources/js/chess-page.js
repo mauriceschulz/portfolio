@@ -311,7 +311,10 @@ function getLegalTargets(square) {
     }
 
     try {
-        const chess = new Chess(`${state.game.fen} ${state.game.sideToMove === 'WHITE' ? 'w' : 'b'} - - 0 1`);
+        const placement = boardPlacement(state.game.fen);
+        const sideToMove = state.game.sideToMove === 'WHITE' ? 'w' : 'b';
+        const castlingRights = inferCastlingRights(placement, state.game.moveHistory || []);
+        const chess = new Chess(`${placement} ${sideToMove} ${castlingRights || '-'} - 0 1`);
         return chess.moves({ square, verbose: true }).map((move) => move.to);
     } catch {
         return [];
@@ -347,7 +350,7 @@ function canSelectSquare(square, piece) {
 function parsePlacement(placement) {
     const board = new Map();
 
-    placement.split('/').forEach((row, rowIndex) => {
+    boardPlacement(placement).split('/').forEach((row, rowIndex) => {
         let fileIndex = 0;
         [...row].forEach((character) => {
             if (/\d/.test(character)) {
@@ -361,6 +364,46 @@ function parsePlacement(placement) {
     });
 
     return board;
+}
+
+function boardPlacement(fen) {
+    return (fen || '8/8/8/8/8/8/8/8').split(' ')[0];
+}
+
+function inferCastlingRights(placement, history) {
+    const board = parsePlacement(placement);
+    const rights = [];
+
+    if (canCastleFromHistory(history, 'WHITE', 'king') && board.get('e1') === 'K' && board.get('h1') === 'R') {
+        rights.push('K');
+    }
+
+    if (canCastleFromHistory(history, 'WHITE', 'queen') && board.get('e1') === 'K' && board.get('a1') === 'R') {
+        rights.push('Q');
+    }
+
+    if (canCastleFromHistory(history, 'BLACK', 'king') && board.get('e8') === 'k' && board.get('h8') === 'r') {
+        rights.push('k');
+    }
+
+    if (canCastleFromHistory(history, 'BLACK', 'queen') && board.get('e8') === 'k' && board.get('a8') === 'r') {
+        rights.push('q');
+    }
+
+    return rights.join('');
+}
+
+function canCastleFromHistory(history, color, side) {
+    const kingStart = color === 'WHITE' ? 'e1' : 'e8';
+    const rookStart = {
+        WHITE: { king: 'h1', queen: 'a1' },
+        BLACK: { king: 'h8', queen: 'a8' },
+    }[color][side];
+
+    return !history.some((move) => {
+        const from = String(move).slice(0, 2).toLowerCase();
+        return from === kingStart || from === rookStart;
+    });
 }
 
 function capturedMarkup(counts, whitePieces) {
