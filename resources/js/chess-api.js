@@ -18,13 +18,14 @@ async function parseJsonResponse(response) {
     return body;
 }
 
-export async function createGame(playerColor = 'WHITE') {
+export async function createGame(playerColor = 'WHITE', engineType = 'RANDOM') {
     const response = await fetch(`${API_BASE_URL}/api/games`, {
         method: 'POST',
         headers: headers(),
         body: JSON.stringify({
             playerColor,
             fen: null,
+            engineType,
         }),
     });
 

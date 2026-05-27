@@ -70,6 +70,13 @@
                         <button type="button" class="is-active" data-side="w">White</button>
                         <button type="button" data-side="b">Black</button>
                     </div>
+                    <div class="field">
+                        <span>Engine</span>
+                        <select data-engine-type aria-label="Choose chess engine">
+                            <option value="RANDOM">Random</option>
+                            <option value="ONE_PLY">One ply</option>
+                        </select>
+                    </div>
                     <div class="button-row">
                         <button type="button" class="primary-button" data-new-game>New game</button>
                     </div>

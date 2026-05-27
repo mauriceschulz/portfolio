@@ -67,6 +67,10 @@ const labelByColor = {
     WHITE: 'White',
     BLACK: 'Black',
 };
+const labelByEngineType = {
+    RANDOM: 'Random',
+    ONE_PLY: 'One ply',
+};
 const promotionPieces = [
     { value: 'q', label: 'Queen' },
     { value: 'r', label: 'Rook' },
@@ -77,6 +81,7 @@ const promotionPieces = [
 const state = {
     game: null,
     playerColor: 'WHITE',
+    engineType: 'RANDOM',
     selectedSquare: null,
     legalTargets: [],
     pendingPromotion: null,
@@ -108,10 +113,15 @@ document.addEventListener('DOMContentLoaded', () => {
         capturedWhite: root.querySelector('[data-captured-white]'),
         capturedBlack: root.querySelector('[data-captured-black]'),
         newGame: root.querySelector('[data-new-game]'),
+        engineType: root.querySelector('[data-engine-type]'),
         sideButtons: [...root.querySelectorAll('[data-side]')],
     });
 
     elements.newGame.addEventListener('click', () => startGame());
+    elements.engineType.addEventListener('change', () => {
+        state.engineType = normalizeEngineType(elements.engineType.value);
+        startGame();
+    });
     elements.sideButtons.forEach((button) => {
         button.addEventListener('click', () => {
             state.playerColor = button.dataset.side === 'b' ? 'BLACK' : 'WHITE';
@@ -133,7 +143,8 @@ async function startGame() {
     render();
 
     try {
-        state.game = await createGame(state.playerColor);
+        state.game = await createGame(state.playerColor, state.engineType);
+        state.engineType = normalizeEngineType(state.game?.engineType);
         state.lastPlayerMove = null;
         state.lastEngineMove = initialEngineMove(state.game);
     } catch (error) {
@@ -241,7 +252,17 @@ function renderMeta() {
     elements.moveCount.textContent = String(moveNumber);
     elements.fen.textContent = game?.fen || 'No active game';
     elements.newGame.disabled = state.isSubmittingMove;
-    elements.engineLabel.textContent = 'Spring API';
+    elements.engineType.disabled = state.isSubmittingMove;
+    elements.engineType.value = state.engineType;
+    elements.engineLabel.textContent = engineTypeLabel(game?.engineType || state.engineType);
+}
+
+function normalizeEngineType(engineType) {
+    return labelByEngineType[engineType] ? engineType : 'RANDOM';
+}
+
+function engineTypeLabel(engineType) {
+    return labelByEngineType[normalizeEngineType(engineType)];
 }
 
 function renderMoves() {
