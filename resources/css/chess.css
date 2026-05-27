@@ -218,32 +218,12 @@
         filter: drop-shadow(0 5px 8px rgba(0, 0, 0, 0.24));
     }
 
-    .piece svg {
+    .piece img {
         display: block;
         width: 100%;
         height: 100%;
-        overflow: visible;
-    }
-
-    .piece path,
-    .piece circle {
-        vector-effect: non-scaling-stroke;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-    }
-
-    .piece--white path,
-    .piece--white circle {
-        fill: #f7f1e5;
-        stroke: #7d6d58;
-        stroke-width: 3.2;
-    }
-
-    .piece--black path,
-    .piece--black circle {
-        fill: #242729;
-        stroke: #efe2c5;
-        stroke-width: 2.7;
+        object-fit: contain;
+        user-select: none;
     }
 
     .piece--captured {

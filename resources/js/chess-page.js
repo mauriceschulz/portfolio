@@ -4,44 +4,6 @@ import { createGame, makeMove } from './chess-api';
 
 const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 const ranks = ['8', '7', '6', '5', '4', '3', '2', '1'];
-const pieceArt = {
-    k: `
-        <path d="M45 12v11M39.5 17.5h11"/>
-        <path d="M33 34c0-7 5.5-12 12-12s12 5 12 12c0 4.5-2.3 8.2-6 10.4l3.8 15.6H35.2L39 44.4C35.3 42.2 33 38.5 33 34Z"/>
-        <path d="M30 68h30l4 9H26l4-9Z"/>
-    `,
-    q: `
-        <circle cx="24" cy="28" r="4"/>
-        <circle cx="34.5" cy="20" r="4"/>
-        <circle cx="45" cy="17" r="4"/>
-        <circle cx="55.5" cy="20" r="4"/>
-        <circle cx="66" cy="28" r="4"/>
-        <path d="M27 34l6 27h24l6-27-11 13-7-19-7 19-11-13Z"/>
-        <path d="M30 68h30l4 9H26l4-9Z"/>
-    `,
-    r: `
-        <path d="M27 18h10v7h16v-7h10v20H27V18Z"/>
-        <path d="M33 38h24v23H33V38Z"/>
-        <path d="M29 61h32l4 16H25l4-16Z"/>
-    `,
-    b: `
-        <circle cx="45" cy="20" r="6"/>
-        <path d="M33 47c0-11 12-24 12-24s12 13 12 24c0 8-5.5 14-12 14s-12-6-12-14Z"/>
-        <path d="M50 33L39 49"/>
-        <path d="M30 68h30l4 9H26l4-9Z"/>
-    `,
-    n: `
-        <path d="M29 61c1.8-14.5 7-25.2 16.5-33.2L40 18c14 2.5 22.5 11.5 24 27l-8 16H29Z"/>
-        <path d="M42 31c5 1 9 3.7 12 8"/>
-        <path d="M36 43h.2"/>
-        <path d="M29 61h32l4 16H25l4-16Z"/>
-    `,
-    p: `
-        <circle cx="45" cy="25" r="9"/>
-        <path d="M36 48c0-7 4-13 9-13s9 6 9 13v13H36V48Z"/>
-        <path d="M30 68h30l4 9H26l4-9Z"/>
-    `,
-};
 const pieceNames = {
     K: 'White king',
     Q: 'White queen',
@@ -530,13 +492,11 @@ function capturedMarkup(counts, whitePieces) {
 
 function renderPiece(piece, captured = false) {
     const isWhitePiece = piece === piece.toUpperCase();
-    const type = piece.toLowerCase();
+    const file = `${isWhitePiece ? 'w' : 'b'}${piece.toLowerCase()}.svg`;
 
     return `
         <span class="piece ${captured ? 'piece--captured' : ''} piece--${isWhitePiece ? 'white' : 'black'}" aria-hidden="true">
-            <svg viewBox="0 0 90 90" focusable="false">
-                ${pieceArt[type]}
-            </svg>
+            <img src="/assets/chess/merida/${file}" alt="" loading="eager" draggable="false">
         </span>
     `;
 }
