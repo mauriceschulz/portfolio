@@ -30,8 +30,9 @@ const labelByColor = {
     BLACK: 'Black',
 };
 const labelByEngineType = {
-    RANDOM: 'Random',
+    MINMAX: 'Minmax',
     ONE_PLY: 'One ply',
+    RANDOM: 'Random',
 };
 const promotionPieces = [
     { value: 'q', label: 'Queen' },

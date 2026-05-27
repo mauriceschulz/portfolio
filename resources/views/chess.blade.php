@@ -73,8 +73,9 @@
                     <div class="field">
                         <span>Engine</span>
                         <select data-engine-type aria-label="Choose chess engine">
-                            <option value="RANDOM">Random</option>
+                            <option value="MINMAX">Minmax</option>
                             <option value="ONE_PLY">One ply</option>
+                            <option value="RANDOM">Random</option>
                         </select>
                     </div>
                     <div class="button-row">
