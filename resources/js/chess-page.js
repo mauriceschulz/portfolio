@@ -67,12 +67,19 @@ const labelByColor = {
     WHITE: 'White',
     BLACK: 'Black',
 };
+const promotionPieces = [
+    { value: 'q', label: 'Queen' },
+    { value: 'r', label: 'Rook' },
+    { value: 'b', label: 'Bishop' },
+    { value: 'n', label: 'Knight' },
+];
 
 const state = {
     game: null,
     playerColor: 'WHITE',
     selectedSquare: null,
     legalTargets: [],
+    pendingPromotion: null,
     isSubmittingMove: false,
     lastPlayerMove: null,
     lastEngineMove: null,
@@ -89,6 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     Object.assign(elements, {
+        root,
         board: root.querySelector('[data-board]'),
         statusPill: root.querySelector('[data-status-pill]'),
         turnLabel: root.querySelector('[data-turn-label]'),
@@ -120,6 +128,7 @@ async function startGame() {
     state.isSubmittingMove = true;
     state.selectedSquare = null;
     state.legalTargets = [];
+    state.pendingPromotion = null;
     state.errorMessage = null;
     render();
 
@@ -136,16 +145,17 @@ async function startGame() {
     }
 }
 
-async function submitMove(from, to) {
+async function submitMove(from, to, promotion = null) {
     if (!state.game || state.isSubmittingMove || !canPlayerMove()) {
         return;
     }
 
-    const move = buildUciMove(from, to);
+    const move = buildUciMove(from, to, promotion);
     state.isSubmittingMove = true;
     state.errorMessage = null;
     state.selectedSquare = null;
     state.legalTargets = [];
+    state.pendingPromotion = null;
     render();
 
     try {
@@ -166,6 +176,7 @@ function render() {
     renderMeta();
     renderMoves();
     renderCaptured();
+    renderPromotionChoice();
 }
 
 function renderBoard() {
@@ -266,6 +277,18 @@ function handleSquareClick(square) {
     const piece = parsePlacement(state.game?.fen || '').get(square);
 
     if (state.selectedSquare && state.legalTargets.includes(square)) {
+        const selectedPiece = parsePlacement(state.game?.fen || '').get(state.selectedSquare);
+
+        if (isPromotionMove(selectedPiece, square)) {
+            state.pendingPromotion = {
+                from: state.selectedSquare,
+                to: square,
+                color: selectedPiece === selectedPiece.toUpperCase() ? 'WHITE' : 'BLACK',
+            };
+            render();
+            return;
+        }
+
         submitMove(state.selectedSquare, square);
         return;
     }
@@ -295,11 +318,17 @@ function getLegalTargets(square) {
     }
 }
 
-function buildUciMove(from, to) {
-    const piece = parsePlacement(state.game?.fen || '').get(from);
-    const promotes = piece?.toLowerCase() === 'p' && (to[1] === '1' || to[1] === '8');
+function buildUciMove(from, to, promotion = null) {
+    return `${from}${to}${promotion ?? ''}`.toLowerCase();
+}
 
-    return `${from}${to}${promotes ? 'q' : ''}`;
+function isPromotionMove(piece, to) {
+    if (piece?.toLowerCase() !== 'p') {
+        return false;
+    }
+
+    const isWhitePiece = piece === piece.toUpperCase();
+    return (isWhitePiece && to[1] === '8') || (!isWhitePiece && to[1] === '1');
 }
 
 function canPlayerMove() {
@@ -307,7 +336,7 @@ function canPlayerMove() {
 }
 
 function canSelectSquare(square, piece) {
-    if (!piece || !canPlayerMove() || state.isSubmittingMove) {
+    if (!piece || !canPlayerMove() || state.isSubmittingMove || state.pendingPromotion) {
         return false;
     }
 
@@ -355,6 +384,41 @@ function renderPiece(piece, captured = false) {
             </svg>
         </span>
     `;
+}
+
+function renderPromotionChoice() {
+    elements.root.querySelector('[data-promotion-choice]')?.remove();
+
+    if (!state.pendingPromotion) {
+        return;
+    }
+
+    const isWhitePromotion = state.pendingPromotion.color === 'WHITE';
+    const overlay = document.createElement('div');
+    overlay.className = 'promotion-choice';
+    overlay.dataset.promotionChoice = '';
+    overlay.innerHTML = `
+        <div class="promotion-choice__panel" role="dialog" aria-modal="true" aria-label="Choose promotion piece">
+            <span>Promote pawn</span>
+            <div class="promotion-choice__pieces">
+                ${promotionPieces.map((piece) => `
+                    <button type="button" data-promotion="${piece.value}" aria-label="Promote to ${piece.label}">
+                        ${renderPiece(isWhitePromotion ? piece.value.toUpperCase() : piece.value)}
+                        <strong>${piece.label}</strong>
+                    </button>
+                `).join('')}
+            </div>
+        </div>
+    `;
+
+    overlay.querySelectorAll('[data-promotion]').forEach((button) => {
+        button.addEventListener('click', () => {
+            const { from, to } = state.pendingPromotion;
+            submitMove(from, to, button.dataset.promotion);
+        });
+    });
+
+    elements.root.append(overlay);
 }
 
 function initialEngineMove(game) {
