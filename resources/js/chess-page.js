@@ -209,6 +209,7 @@ function renderBoard() {
                 type="button"
                 class="square ${isLight ? 'is-light' : 'is-dark'} ${isSelected ? 'is-selected' : ''} ${isTarget ? 'is-target' : ''} ${isLastMove ? 'is-last-move' : ''}"
                 data-square="${square}"
+                draggable="${canSelectSquare(square, piece) ? 'true' : 'false'}"
                 role="gridcell"
                 aria-label="${label}"
                 ${disabled ? 'tabindex="-1"' : ''}
@@ -220,6 +221,10 @@ function renderBoard() {
 
     elements.board.querySelectorAll('[data-square]').forEach((squareElement) => {
         squareElement.addEventListener('click', () => handleSquareClick(squareElement.dataset.square));
+        squareElement.addEventListener('dragstart', (event) => handleDragStart(event, squareElement.dataset.square));
+        squareElement.addEventListener('dragover', (event) => handleDragOver(event, squareElement.dataset.square));
+        squareElement.addEventListener('drop', (event) => handleDrop(event, squareElement.dataset.square));
+        squareElement.addEventListener('dragend', () => handleDragEnd());
     });
 }
 
@@ -277,19 +282,7 @@ function handleSquareClick(square) {
     const piece = parsePlacement(state.game?.fen || '').get(square);
 
     if (state.selectedSquare && state.legalTargets.includes(square)) {
-        const selectedPiece = parsePlacement(state.game?.fen || '').get(state.selectedSquare);
-
-        if (isPromotionMove(selectedPiece, square)) {
-            state.pendingPromotion = {
-                from: state.selectedSquare,
-                to: square,
-                color: selectedPiece === selectedPiece.toUpperCase() ? 'WHITE' : 'BLACK',
-            };
-            render();
-            return;
-        }
-
-        submitMove(state.selectedSquare, square);
+        submitSelectedMove(square);
         return;
     }
 
@@ -305,6 +298,65 @@ function handleSquareClick(square) {
     render();
 }
 
+function handleDragStart(event, square) {
+    const piece = parsePlacement(state.game?.fen || '').get(square);
+
+    if (!canSelectSquare(square, piece)) {
+        event.preventDefault();
+        return;
+    }
+
+    state.selectedSquare = square;
+    state.legalTargets = getLegalTargets(square);
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/plain', square);
+    render();
+}
+
+function handleDragOver(event, square) {
+    if (!state.selectedSquare || !state.legalTargets.includes(square)) {
+        return;
+    }
+
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+}
+
+function handleDrop(event, square) {
+    if (!state.selectedSquare || !state.legalTargets.includes(square)) {
+        return;
+    }
+
+    event.preventDefault();
+    submitSelectedMove(square);
+}
+
+function handleDragEnd() {
+    if (state.isSubmittingMove || state.pendingPromotion) {
+        return;
+    }
+
+    state.selectedSquare = null;
+    state.legalTargets = [];
+    render();
+}
+
+function submitSelectedMove(to) {
+    const selectedPiece = parsePlacement(state.game?.fen || '').get(state.selectedSquare);
+
+    if (isPromotionMove(selectedPiece, to)) {
+        state.pendingPromotion = {
+            from: state.selectedSquare,
+            to,
+            color: selectedPiece === selectedPiece.toUpperCase() ? 'WHITE' : 'BLACK',
+        };
+        render();
+        return;
+    }
+
+    submitMove(state.selectedSquare, to);
+}
+
 function getLegalTargets(square) {
     if (!state.game) {
         return [];
@@ -314,7 +366,8 @@ function getLegalTargets(square) {
         const placement = boardPlacement(state.game.fen);
         const sideToMove = state.game.sideToMove === 'WHITE' ? 'w' : 'b';
         const castlingRights = inferCastlingRights(placement, state.game.moveHistory || []);
-        const chess = new Chess(`${placement} ${sideToMove} ${castlingRights || '-'} - 0 1`);
+        const enPassantTarget = inferEnPassantTarget(placement, state.game.moveHistory || [], state.game.sideToMove);
+        const chess = new Chess(`${placement} ${sideToMove} ${castlingRights || '-'} ${enPassantTarget} 0 1`);
         return chess.moves({ square, verbose: true }).map((move) => move.to);
     } catch {
         return [];
@@ -404,6 +457,44 @@ function canCastleFromHistory(history, color, side) {
         const from = String(move).slice(0, 2).toLowerCase();
         return from === kingStart || from === rookStart;
     });
+}
+
+function inferEnPassantTarget(placement, history, sideToMove) {
+    const lastMove = String(history.at(-1) || '').toLowerCase();
+
+    if (!/^[a-h][1-8][a-h][1-8]/.test(lastMove)) {
+        return '-';
+    }
+
+    const from = lastMove.slice(0, 2);
+    const to = lastMove.slice(2, 4);
+    const fromRank = Number(from[1]);
+    const toRank = Number(to[1]);
+
+    if (from[0] !== to[0] || Math.abs(fromRank - toRank) !== 2) {
+        return '-';
+    }
+
+    const board = parsePlacement(placement);
+    const movedPiece = board.get(to);
+
+    if (movedPiece?.toLowerCase() !== 'p' || colorForPiece(movedPiece) === sideToMove) {
+        return '-';
+    }
+
+    const ownPawn = sideToMove === 'WHITE' ? 'P' : 'p';
+    const movedFileIndex = files.indexOf(to[0]);
+    const canCapture = [-1, 1].some((offset) => board.get(`${files[movedFileIndex + offset]}${to[1]}`) === ownPawn);
+
+    if (!canCapture) {
+        return '-';
+    }
+
+    return `${to[0]}${(fromRank + toRank) / 2}`;
+}
+
+function colorForPiece(piece) {
+    return piece === piece.toUpperCase() ? 'WHITE' : 'BLACK';
 }
 
 function capturedMarkup(counts, whitePieces) {
