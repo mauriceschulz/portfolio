@@ -341,13 +341,6 @@
         max-width: 54ch;
     }
 
-    .project-card--chess p {
-        max-width: none;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
     .tech-stack {
         display: flex;
         flex-wrap: wrap;

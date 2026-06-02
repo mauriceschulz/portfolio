@@ -20,6 +20,10 @@ function applyLanguage(language) {
         element.textContent = element.dataset[language];
     });
 
+    document.querySelectorAll('[data-tooltip-de][data-tooltip-en]').forEach((element) => {
+        element.dataset.tooltip = element.dataset[`tooltip${language === 'en' ? 'En' : 'De'}`];
+    });
+
     document.querySelectorAll('[data-language-option]').forEach((button) => {
         button.classList.toggle('is-active', button.dataset.languageOption === language);
     });

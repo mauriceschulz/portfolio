@@ -102,6 +102,7 @@ const promotionPieces = [
 const state = {
     game: null,
     playerColor: 'WHITE',
+    selectedPlayerColor: 'WHITE',
     engineType: 'MINMAX',
     language: document.documentElement.lang === 'en' ? 'en' : 'de',
     selectedSquare: null,
@@ -159,12 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     elements.sideButtons.forEach((button) => {
         button.addEventListener('click', () => {
-            if (hasStartedGame()) {
-                return;
-            }
-
-            state.playerColor = button.dataset.side === 'b' ? 'BLACK' : 'WHITE';
-            elements.sideButtons.forEach((sideButton) => sideButton.classList.toggle('is-active', sideButton === button));
+            state.selectedPlayerColor = button.dataset.side === 'b' ? 'BLACK' : 'WHITE';
             render();
         });
     });
@@ -173,6 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function startGame() {
+    state.playerColor = state.selectedPlayerColor;
     state.isSubmittingMove = true;
     state.selectedSquare = null;
     state.legalTargets = [];
@@ -289,7 +286,7 @@ function renderMeta() {
     elements.statusPill.textContent = state.isSubmittingMove ? t('thinking') : statusText(status);
     elements.statusPill.classList.toggle('is-error', Boolean(state.errorMessage));
     elements.turnLabel.textContent = state.errorMessage || (game ? `${sideToMove} ${t('toMove')}` : t('connectEngine'));
-    elements.playerLabel.textContent = colorLabel(state.playerColor);
+    elements.playerLabel.textContent = colorLabel(game ? state.playerColor : state.selectedPlayerColor);
     elements.moveCount.textContent = String(moveNumber);
     elements.fen.textContent = game?.fen || t('noActiveGame');
     elements.newGame.disabled = state.isSubmittingMove;
@@ -297,12 +294,9 @@ function renderMeta() {
     elements.engineType.value = state.engineType;
     elements.engineLabel.textContent = engineTypeLabel(game?.engineType || state.engineType);
     elements.sideButtons.forEach((button) => {
-        button.disabled = hasStartedGame();
+        const buttonColor = button.dataset.side === 'b' ? 'BLACK' : 'WHITE';
+        button.classList.toggle('is-active', buttonColor === state.selectedPlayerColor);
     });
-}
-
-function hasStartedGame() {
-    return Boolean(state.game);
 }
 
 function normalizeEngineType(engineType) {
