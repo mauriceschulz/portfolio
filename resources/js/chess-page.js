@@ -1,6 +1,6 @@
 import { Chess } from 'chess.js';
 import '../css/chess.css';
-import { createGame, makeMove } from './chess-api';
+import { createGame, makeMove, setChessApiLogger } from './chess-api';
 
 const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 const ranks = ['8', '7', '6', '5', '4', '3', '2', '1'];
@@ -26,13 +26,69 @@ const startMaterial = {
     q: 1,
 };
 const labelByColor = {
-    WHITE: 'White',
-    BLACK: 'Black',
+    de: {
+        WHITE: 'Weiß',
+        BLACK: 'Schwarz',
+    },
+    en: {
+        WHITE: 'White',
+        BLACK: 'Black',
+    },
 };
 const labelByEngineType = {
-    MINMAX: 'Minmax',
+    MINMAX: 'Minimax',
     ONE_PLY: 'One ply',
     RANDOM: 'Random',
+};
+const text = {
+    de: {
+        thinking: 'Denkt',
+        connectEngine: 'Engine verbinden',
+        noActiveGame: 'Keine aktive Partie',
+        noMoves: 'Noch keine Züge',
+        engineOfflineSuffix: 'Starte die Spring Boot Engine auf Port 8080 und erstelle danach eine neue Partie.',
+        engineOffline: 'Engine offline',
+        active: 'Aktiv',
+        checkmate: 'Schachmatt',
+        draw: 'Remis',
+        stalemate: 'Patt',
+        resigned: 'Aufgegeben',
+        connecting: 'Verbindet',
+        toMove: 'am Zug',
+        terminalEmpty: 'Noch keine Engine-Kommunikation. Starte eine neue Partie oder spiele einen Zug.',
+        request: 'Request',
+        response: 'Response',
+        youWon: 'Schachmatt. Du hast gewonnen.',
+        engineWon: 'Schachmatt. Die Engine hat gewonnen.',
+        checkmateBody: 'Die Partie ist beendet. Starte eine neue Partie, um mit denselben Einstellungen direkt weiterzuspielen.',
+        newGame: 'Neue Partie',
+        promotePawn: 'Bauer umwandeln',
+        promoteTo: 'Umwandeln in',
+    },
+    en: {
+        thinking: 'Thinking',
+        connectEngine: 'Connect the engine',
+        noActiveGame: 'No active game',
+        noMoves: 'No moves yet',
+        engineOfflineSuffix: 'Start the Spring Boot engine on port 8080, then create a new game.',
+        engineOffline: 'Engine offline',
+        active: 'Active',
+        checkmate: 'Checkmate',
+        draw: 'Draw',
+        stalemate: 'Stalemate',
+        resigned: 'Resigned',
+        connecting: 'Connecting',
+        toMove: 'to move',
+        terminalEmpty: 'No engine communication yet. Start a new game or play a move.',
+        request: 'Request',
+        response: 'Response',
+        youWon: 'Checkmate. You won.',
+        engineWon: 'Checkmate. The engine won.',
+        checkmateBody: 'The game is over. Start a new game to continue with the same settings.',
+        newGame: 'New game',
+        promotePawn: 'Promote pawn',
+        promoteTo: 'Promote to',
+    },
 };
 const promotionPieces = [
     { value: 'q', label: 'Queen' },
@@ -44,13 +100,15 @@ const promotionPieces = [
 const state = {
     game: null,
     playerColor: 'WHITE',
-    engineType: 'RANDOM',
+    engineType: 'MINMAX',
+    language: document.documentElement.lang === 'en' ? 'en' : 'de',
     selectedSquare: null,
     legalTargets: [],
     pendingPromotion: null,
     isSubmittingMove: false,
     lastPlayerMove: null,
     lastEngineMove: null,
+    communicationLog: [],
     errorMessage: null,
 };
 
@@ -73,6 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
         moveCount: root.querySelector('[data-move-count]'),
         moveList: root.querySelector('[data-move-list]'),
         fen: root.querySelector('[data-fen]'),
+        engineConsole: root.querySelector('[data-engine-console]'),
         capturedWhite: root.querySelector('[data-captured-white]'),
         capturedBlack: root.querySelector('[data-captured-black]'),
         newGame: root.querySelector('[data-new-game]'),
@@ -80,16 +139,26 @@ document.addEventListener('DOMContentLoaded', () => {
         sideButtons: [...root.querySelectorAll('[data-side]')],
     });
 
+    setChessApiLogger((entry) => {
+        state.communicationLog = [entry, ...state.communicationLog].slice(0, 24);
+        renderCommandLog();
+    });
+
+    window.addEventListener('portfolio:language-change', (event) => {
+        state.language = event.detail?.language === 'en' ? 'en' : 'de';
+        render();
+    });
+
     elements.newGame.addEventListener('click', () => startGame());
     elements.engineType.addEventListener('change', () => {
         state.engineType = normalizeEngineType(elements.engineType.value);
-        startGame();
+        render();
     });
     elements.sideButtons.forEach((button) => {
         button.addEventListener('click', () => {
             state.playerColor = button.dataset.side === 'b' ? 'BLACK' : 'WHITE';
             elements.sideButtons.forEach((sideButton) => sideButton.classList.toggle('is-active', sideButton === button));
-            startGame();
+            render();
         });
     });
 
@@ -112,7 +181,7 @@ async function startGame() {
         state.lastEngineMove = initialEngineMove(state.game);
     } catch (error) {
         state.game = null;
-        state.errorMessage = `${error.message} Start the Spring Boot engine on port 8080, then create a new game.`;
+        state.errorMessage = `${error.message} ${t('engineOfflineSuffix')}`;
     } finally {
         state.isSubmittingMove = false;
         render();
@@ -150,7 +219,9 @@ function render() {
     renderMeta();
     renderMoves();
     renderCaptured();
+    renderCommandLog();
     renderPromotionChoice();
+    renderCheckmateScreen();
 }
 
 function renderBoard() {
@@ -205,15 +276,15 @@ function renderBoard() {
 function renderMeta() {
     const game = state.game;
     const status = game?.status || 'CONNECTING';
-    const sideToMove = game?.sideToMove ? labelByColor[game.sideToMove] : 'White';
+    const sideToMove = game?.sideToMove ? colorLabel(game.sideToMove) : colorLabel('WHITE');
     const moveNumber = Math.floor((game?.moveHistory?.length || 0) / 2) + 1;
 
-    elements.statusPill.textContent = state.isSubmittingMove ? 'Thinking' : statusText(status);
+    elements.statusPill.textContent = state.isSubmittingMove ? t('thinking') : statusText(status);
     elements.statusPill.classList.toggle('is-error', Boolean(state.errorMessage));
-    elements.turnLabel.textContent = state.errorMessage || (game ? `${sideToMove} to move` : 'Connect the engine');
-    elements.playerLabel.textContent = labelByColor[state.playerColor];
+    elements.turnLabel.textContent = state.errorMessage || (game ? `${sideToMove} ${t('toMove')}` : t('connectEngine'));
+    elements.playerLabel.textContent = colorLabel(state.playerColor);
     elements.moveCount.textContent = String(moveNumber);
-    elements.fen.textContent = game?.fen || 'No active game';
+    elements.fen.textContent = game?.fen || t('noActiveGame');
     elements.newGame.disabled = state.isSubmittingMove;
     elements.engineType.disabled = state.isSubmittingMove;
     elements.engineType.value = state.engineType;
@@ -221,11 +292,19 @@ function renderMeta() {
 }
 
 function normalizeEngineType(engineType) {
-    return labelByEngineType[engineType] ? engineType : 'RANDOM';
+    return labelByEngineType[engineType] ? engineType : 'MINMAX';
 }
 
 function engineTypeLabel(engineType) {
     return labelByEngineType[normalizeEngineType(engineType)];
+}
+
+function t(key) {
+    return text[state.language]?.[key] || text.de[key] || key;
+}
+
+function colorLabel(color) {
+    return labelByColor[state.language]?.[color] || labelByColor.de[color] || color;
 }
 
 function renderMoves() {
@@ -242,7 +321,69 @@ function renderMoves() {
         `);
     }
 
-    elements.moveList.innerHTML = rows.join('') || '<li class="empty-moves">No moves yet</li>';
+    elements.moveList.innerHTML = rows.join('') || `<li class="empty-moves">${t('noMoves')}</li>`;
+}
+
+function renderCommandLog() {
+    if (!elements.engineConsole) {
+        return;
+    }
+
+    if (!state.communicationLog.length) {
+        elements.engineConsole.innerHTML = `<p>${t('terminalEmpty')}</p>`;
+        return;
+    }
+
+    elements.engineConsole.innerHTML = state.communicationLog.map((entry) => {
+        const directionLabel = entry.direction === 'out' ? t('request') : t('response');
+        const time = entry.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const status = entry.status ? ` ${entry.status}` : '';
+
+        return `
+            <article class="console-entry console-entry--${entry.direction}">
+                <header>
+                    <span>${time}</span>
+                    <strong>${directionLabel}${status}</strong>
+                    <code>${entry.method} ${entry.path}</code>
+                </header>
+                <pre>${escapeHtml(JSON.stringify(entry.body, null, 2))}</pre>
+            </article>
+        `;
+    }).join('');
+}
+
+function escapeHtml(value) {
+    return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+}
+
+function renderCheckmateScreen() {
+    elements.root.querySelector('[data-checkmate-screen]')?.remove();
+
+    if (state.game?.status !== 'CHECKMATE') {
+        return;
+    }
+
+    const winner = state.game.sideToMove === 'WHITE' ? 'BLACK' : 'WHITE';
+    const title = winner === state.playerColor ? t('youWon') : t('engineWon');
+    const overlay = document.createElement('div');
+    overlay.className = 'checkmate-screen';
+    overlay.dataset.checkmateScreen = '';
+    overlay.innerHTML = `
+        <div class="checkmate-screen__panel" role="dialog" aria-modal="true" aria-label="${t('checkmate')}">
+            <span>${t('checkmate')}</span>
+            <h2>${title}</h2>
+            <p>${t('checkmateBody')}</p>
+            <button type="button" class="primary-button">${t('newGame')}</button>
+        </div>
+    `;
+
+    overlay.querySelector('button').addEventListener('click', () => startGame());
+    elements.root.append(overlay);
 }
 
 function renderCaptured() {
@@ -515,10 +656,10 @@ function renderPromotionChoice() {
     overlay.dataset.promotionChoice = '';
     overlay.innerHTML = `
         <div class="promotion-choice__panel" role="dialog" aria-modal="true" aria-label="Choose promotion piece">
-            <span>Promote pawn</span>
+            <span>${t('promotePawn')}</span>
             <div class="promotion-choice__pieces">
                 ${promotionPieces.map((piece) => `
-                    <button type="button" data-promotion="${piece.value}" aria-label="Promote to ${piece.label}">
+                    <button type="button" data-promotion="${piece.value}" aria-label="${t('promoteTo')} ${piece.label}">
                         ${renderPiece(isWhitePromotion ? piece.value.toUpperCase() : piece.value)}
                         <strong>${piece.label}</strong>
                     </button>
@@ -547,15 +688,15 @@ function initialEngineMove(game) {
 
 function statusText(status) {
     if (state.errorMessage) {
-        return 'Engine offline';
+        return t('engineOffline');
     }
 
     return {
-        ACTIVE: 'Active',
-        CHECKMATE: 'Checkmate',
-        DRAW: 'Draw',
-        STALEMATE: 'Stalemate',
-        RESIGNED: 'Resigned',
-        CONNECTING: 'Connecting',
+        ACTIVE: t('active'),
+        CHECKMATE: t('checkmate'),
+        DRAW: t('draw'),
+        STALEMATE: t('stalemate'),
+        RESIGNED: t('resigned'),
+        CONNECTING: t('connecting'),
     }[status] || status;
 }
