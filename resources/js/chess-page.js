@@ -348,20 +348,20 @@ function renderCommandLog() {
         return;
     }
 
-    elements.engineConsole.innerHTML = state.communicationLog.map((entry) => {
+    elements.engineConsole.innerHTML = state.communicationLog.map((entry, index) => {
         const directionLabel = entry.direction === 'out' ? t('request') : t('response');
         const time = entry.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
         const status = entry.status ? ` ${entry.status}` : '';
 
         return `
-            <article class="console-entry console-entry--${entry.direction}">
-                <header>
+            <details class="console-entry console-entry--${entry.direction}" ${index === 0 ? 'open' : ''}>
+                <summary>
                     <span>${time}</span>
                     <strong>${directionLabel}${status}</strong>
                     <code>${entry.method} ${entry.path}</code>
-                </header>
+                </summary>
                 <pre>${escapeHtml(JSON.stringify(entry.body, null, 2))}</pre>
-            </article>
+            </details>
         `;
     }).join('');
 }

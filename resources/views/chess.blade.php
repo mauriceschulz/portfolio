@@ -5,21 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Chess Engine | Maurice Schulz</title>
+    <link rel="icon" type="image/png" href="{{ asset('assets/profile/github-avatar.png') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/chess-page.js'])
 </head>
 <body>
     <main class="chess-shell" data-chess-app>
         <nav class="portfolio-topbar chess-topbar" aria-label="Chess navigation">
-            <a class="brand-mark" href="{{ url('/') }}" aria-label="Portfolio Maurice Schulz">
+            <a class="brand-mark has-tooltip" href="{{ url('/') }}" aria-label="Portfolio Maurice Schulz" data-tooltip="Startseite">
                 <img src="{{ asset('assets/profile/github-avatar.png') }}" alt="Maurice Schulz">
             </a>
             <div class="topbar-actions">
-                <a class="icon-link" href="https://github.com/mauriceschulz" target="_blank" rel="noreferrer" aria-label="GitHub profile">
+                <a class="icon-link has-tooltip" href="https://github.com/mauriceschulz" target="_blank" rel="noreferrer" aria-label="GitHub profile" data-tooltip="GitHub">
                     <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.09.68-.22.68-.49 0-.24-.01-1.04-.01-1.89-2.78.62-3.37-1.22-3.37-1.22-.45-1.18-1.11-1.49-1.11-1.49-.91-.64.07-.63.07-.63 1 .07 1.53 1.06 1.53 1.06.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05A9.29 9.29 0 0 1 12 6.99c.85 0 1.71.12 2.51.35 1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.8-4.57 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.8 0 .27.18.59.69.49A10.16 10.16 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z"/>
                     </svg>
                 </a>
-                <a class="icon-link icon-link--mail" href="mailto:info@mauriceschulz.dev" aria-label="E-Mail">
+                <a class="icon-link icon-link--mail has-tooltip" href="mailto:info@mauriceschulz.dev" aria-label="E-Mail" data-tooltip="E-Mail">
                     <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M4.75 6.5h14.5c.69 0 1.25.56 1.25 1.25v8.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-8.5c0-.69.56-1.25 1.25-1.25Z"/>
                         <path d="m4.5 7.5 7.5 5.75 7.5-5.75"/>

@@ -77,10 +77,48 @@
     }
 
     .icon-link {
+        position: relative;
         width: 42px;
         height: 42px;
         border-radius: 8px;
         transition: border-color 160ms ease, color 160ms ease, background 160ms ease;
+    }
+
+    .brand-mark.has-tooltip {
+        overflow: visible;
+        position: relative;
+    }
+
+    .brand-mark.has-tooltip img {
+        border-radius: 8px;
+    }
+
+    .has-tooltip::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 50%;
+        z-index: 40;
+        transform: translate(-50%, 4px);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 6px;
+        background: rgba(12, 14, 14, 0.96);
+        padding: 6px 8px;
+        color: #f7f3ea;
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 140ms ease, transform 140ms ease;
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.32);
+    }
+
+    .has-tooltip:hover::after,
+    .has-tooltip:focus-visible::after {
+        transform: translate(-50%, 0);
+        opacity: 1;
     }
 
     .icon-link:hover,
@@ -186,7 +224,7 @@
 
     .portfolio-hero h1 {
         max-width: 920px;
-        margin: 0;
+        margin: 0 0 0 -0.055em;
         font-size: clamp(52px, 9vw, 118px);
         line-height: 0.92;
         letter-spacing: 0;
@@ -276,6 +314,12 @@
         transition: border-color 160ms ease, transform 160ms ease, background 160ms ease;
     }
 
+    .project-card > div {
+        display: flex;
+        min-width: 0;
+        flex-direction: column;
+    }
+
     .project-card:hover,
     .project-card:focus-visible {
         transform: translateY(-2px);
@@ -297,11 +341,19 @@
         max-width: 54ch;
     }
 
+    .project-card--chess p {
+        max-width: none;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
     .tech-stack {
         display: flex;
         flex-wrap: wrap;
         gap: 8px;
-        margin-top: 16px;
+        margin-top: auto;
+        padding-top: 16px;
     }
 
     .tech-badge {

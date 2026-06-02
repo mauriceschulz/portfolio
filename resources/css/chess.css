@@ -266,6 +266,12 @@
         filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.2));
     }
 
+    .piece--captured.piece--black img {
+        filter:
+            drop-shadow(0 0 1px rgba(255, 255, 255, 0.96))
+            drop-shadow(0 0 2px rgba(255, 255, 255, 0.72));
+    }
+
     .square.is-light {
         background: #e3d6bd;
     }
@@ -453,17 +459,44 @@
     .console-entry {
         border-left: 3px solid #6f8d86;
         background: rgba(255, 255, 255, 0.04);
-        padding: 10px;
+        padding: 0;
     }
 
     .console-entry--in {
         border-left-color: #caa15f;
     }
 
-    .console-entry header {
+    .console-entry summary {
         display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
         gap: 4px;
-        margin-bottom: 8px;
+        align-items: center;
+        padding: 10px;
+        cursor: pointer;
+        list-style: none;
+    }
+
+    .console-entry summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .console-entry summary::after {
+        content: '+';
+        grid-column: 2;
+        grid-row: 1 / span 3;
+        align-self: center;
+        color: #918b80;
+        font-size: 12px;
+    }
+
+    .console-entry summary span,
+    .console-entry summary strong,
+    .console-entry summary code {
+        grid-column: 1;
+    }
+
+    .console-entry[open] summary::after {
+        content: '-';
     }
 
     .console-entry span {
@@ -485,9 +518,11 @@
     }
 
     .console-entry pre {
-        overflow: auto;
-        max-height: 190px;
+        overflow: visible;
+        max-height: none;
         margin: 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 10px;
         color: #cfc8ba;
         font-size: 11px;
         line-height: 1.45;

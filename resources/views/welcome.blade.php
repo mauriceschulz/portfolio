@@ -4,21 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portfolio Maurice Schulz</title>
+    <link rel="icon" type="image/png" href="{{ asset('assets/profile/github-avatar.png') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body>
     <main class="portfolio-shell">
         <nav class="portfolio-topbar" aria-label="Portfolio navigation">
-            <a class="brand-mark" href="{{ url('/') }}" aria-label="Portfolio Maurice Schulz">
+            <a class="brand-mark has-tooltip" href="{{ url('/') }}" aria-label="Portfolio Maurice Schulz" data-tooltip="Startseite">
                 <img src="{{ asset('assets/profile/github-avatar.png') }}" alt="Maurice Schulz">
             </a>
             <div class="topbar-actions">
-                <a class="icon-link" href="https://github.com/mauriceschulz" target="_blank" rel="noreferrer" aria-label="GitHub profile">
+                <a class="icon-link has-tooltip" href="https://github.com/mauriceschulz" target="_blank" rel="noreferrer" aria-label="GitHub profile" data-tooltip="GitHub">
                     <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.09.68-.22.68-.49 0-.24-.01-1.04-.01-1.89-2.78.62-3.37-1.22-3.37-1.22-.45-1.18-1.11-1.49-1.11-1.49-.91-.64.07-.63.07-.63 1 .07 1.53 1.06 1.53 1.06.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05A9.29 9.29 0 0 1 12 6.99c.85 0 1.71.12 2.51.35 1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.8-4.57 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.8 0 .27.18.59.69.49A10.16 10.16 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z"/>
                     </svg>
                 </a>
-                <a class="icon-link icon-link--mail" href="mailto:info@mauriceschulz.dev" aria-label="E-Mail">
+                <a class="icon-link icon-link--mail has-tooltip" href="mailto:info@mauriceschulz.dev" aria-label="E-Mail" data-tooltip="E-Mail">
                     <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M4.75 6.5h14.5c.69 0 1.25.56 1.25 1.25v8.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-8.5c0-.69.56-1.25 1.25-1.25Z"/>
                         <path d="m4.5 7.5 7.5 5.75 7.5-5.75"/>
@@ -51,7 +52,7 @@
             </div>
 
             <div class="project-grid">
-                <a class="project-card project-card--harbor" href="https://github.com/mauriceschulz/domain-harbor" target="_blank" rel="noreferrer" aria-label="Domain Harbor auf GitHub öffnen">
+                <a class="project-card project-card--harbor" href="https://github.com/mauriceschulz/domain-harbor#readme" target="_blank" rel="noreferrer" aria-label="Domain Harbor README auf GitHub öffnen">
                     <img class="project-logo" src="{{ asset('assets/project-icons/domainharbor.png') }}" alt="" aria-hidden="true">
                     <div>
                         <h3>Domain Harbor</h3>
@@ -69,11 +70,11 @@
                     </div>
                 </a>
 
-                <a class="project-card project-card--chess" href="https://github.com/mauriceschulz/chess-engine-api" target="_blank" rel="noreferrer" aria-label="Chess Engine API auf GitHub öffnen">
+                <a class="project-card project-card--chess" href="https://github.com/mauriceschulz/chess-engine-api#readme" target="_blank" rel="noreferrer" aria-label="Chess Engine API README auf GitHub öffnen">
                     <img class="project-logo" src="{{ asset('assets/project-icons/chess-engine.png') }}" alt="" aria-hidden="true">
                     <div>
                         <h3>Chess Engine API</h3>
-                        <p data-de="Java/Spring-Boot-API für Schachpartien mit Zugvalidierung, Engine-Antworten und FEN-Spielständen." data-en="Java/Spring Boot API for chess games with move validation, engine responses and FEN game states.">Java/Spring-Boot-API für Schachpartien mit Zugvalidierung, Engine-Antworten und FEN-Spielständen.</p>
+                        <p data-de="Java/Spring-Boot-API mit Zugvalidierung, Engine-Antworten und FEN." data-en="Java/Spring Boot API with move validation, engine responses and FEN.">Java/Spring-Boot-API mit Zugvalidierung, Engine-Antworten und FEN.</p>
                         <div class="tech-stack" aria-label="Tech stack">
                             <span class="tech-badge tech-badge--java">
                                 <span class="tech-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 18h8M9 21h6M12 3c2 2-2 3 0 5s4 2 2 5M8 13c-2-2 2-3 0-5"/></svg></span>
@@ -87,7 +88,7 @@
                     </div>
                 </a>
 
-                <a class="project-card project-card--quiz" href="https://github.com/mauriceschulz/mikro-controller-quiz" target="_blank" rel="noreferrer" aria-label="Mikrocontroller Quiz auf GitHub öffnen">
+                <a class="project-card project-card--quiz" href="https://github.com/mauriceschulz/mikro-controller-quiz#readme" target="_blank" rel="noreferrer" aria-label="Mikrocontroller Quiz README auf GitHub öffnen">
                     <img class="project-logo" src="{{ asset('assets/project-icons/mikrocontroller-quiz.png') }}" alt="" aria-hidden="true">
                     <div>
                         <h3 data-de="Mikrocontroller Quiz" data-en="Microcontroller Quiz">Mikrocontroller Quiz</h3>
@@ -105,7 +106,7 @@
                     </div>
                 </a>
 
-                <a class="project-card project-card--invoice" href="https://github.com/mauriceschulz/xrechnung-api" target="_blank" rel="noreferrer" aria-label="XRechnung API auf GitHub öffnen">
+                <a class="project-card project-card--invoice" href="https://github.com/mauriceschulz/xrechnung-api#readme" target="_blank" rel="noreferrer" aria-label="XRechnung API README auf GitHub öffnen">
                     <img class="project-logo" src="{{ asset('assets/project-icons/xrechnung-api.png') }}" alt="" aria-hidden="true">
                     <div>
                         <h3>XRechnung API</h3>
