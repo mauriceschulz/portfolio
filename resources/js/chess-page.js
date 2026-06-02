@@ -61,6 +61,7 @@ const text = {
         youWon: 'Schachmatt. Du hast gewonnen.',
         engineWon: 'Schachmatt. Die Engine hat gewonnen.',
         checkmateBody: 'Die Partie ist beendet. Starte eine neue Partie, um mit denselben Einstellungen direkt weiterzuspielen.',
+        hideCheckmate: 'Ausblenden',
         newGame: 'Neue Partie',
         promotePawn: 'Bauer umwandeln',
         promoteTo: 'Umwandeln in',
@@ -85,6 +86,7 @@ const text = {
         youWon: 'Checkmate. You won.',
         engineWon: 'Checkmate. The engine won.',
         checkmateBody: 'The game is over. Start a new game to continue with the same settings.',
+        hideCheckmate: 'Hide',
         newGame: 'New game',
         promotePawn: 'Promote pawn',
         promoteTo: 'Promote to',
@@ -110,6 +112,7 @@ const state = {
     lastEngineMove: null,
     communicationLog: [],
     errorMessage: null,
+    checkmateDismissed: false,
 };
 
 const elements = {};
@@ -156,6 +159,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     elements.sideButtons.forEach((button) => {
         button.addEventListener('click', () => {
+            if (hasStartedGame()) {
+                return;
+            }
+
             state.playerColor = button.dataset.side === 'b' ? 'BLACK' : 'WHITE';
             elements.sideButtons.forEach((sideButton) => sideButton.classList.toggle('is-active', sideButton === button));
             render();
@@ -172,6 +179,7 @@ async function startGame() {
     state.legalTargets = [];
     state.pendingPromotion = null;
     state.errorMessage = null;
+    state.checkmateDismissed = false;
     render();
 
     try {
@@ -289,6 +297,13 @@ function renderMeta() {
     elements.engineType.disabled = state.isSubmittingMove;
     elements.engineType.value = state.engineType;
     elements.engineLabel.textContent = engineTypeLabel(game?.engineType || state.engineType);
+    elements.sideButtons.forEach((button) => {
+        button.disabled = hasStartedGame();
+    });
+}
+
+function hasStartedGame() {
+    return Boolean(state.game);
 }
 
 function normalizeEngineType(engineType) {
@@ -364,7 +379,7 @@ function escapeHtml(value) {
 function renderCheckmateScreen() {
     elements.root.querySelector('[data-checkmate-screen]')?.remove();
 
-    if (state.game?.status !== 'CHECKMATE') {
+    if (state.game?.status !== 'CHECKMATE' || state.checkmateDismissed) {
         return;
     }
 
@@ -374,15 +389,22 @@ function renderCheckmateScreen() {
     overlay.className = 'checkmate-screen';
     overlay.dataset.checkmateScreen = '';
     overlay.innerHTML = `
-        <div class="checkmate-screen__panel" role="dialog" aria-modal="true" aria-label="${t('checkmate')}">
+        <div class="checkmate-screen__panel" role="dialog" aria-modal="false" aria-label="${t('checkmate')}">
             <span>${t('checkmate')}</span>
             <h2>${title}</h2>
             <p>${t('checkmateBody')}</p>
-            <button type="button" class="primary-button">${t('newGame')}</button>
+            <div class="checkmate-screen__actions">
+                <button type="button" class="ghost-button" data-dismiss-checkmate>${t('hideCheckmate')}</button>
+                <button type="button" class="primary-button" data-new-checkmate-game>${t('newGame')}</button>
+            </div>
         </div>
     `;
 
-    overlay.querySelector('button').addEventListener('click', () => startGame());
+    overlay.querySelector('[data-dismiss-checkmate]').addEventListener('click', () => {
+        state.checkmateDismissed = true;
+        renderCheckmateScreen();
+    });
+    overlay.querySelector('[data-new-checkmate-game]').addEventListener('click', () => startGame());
     elements.root.append(overlay);
 }
 

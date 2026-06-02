@@ -46,7 +46,7 @@
 
         <section id="projects" class="project-section" aria-labelledby="projects-title">
             <div class="section-heading">
-                <span data-de="Auswahl" data-en="Selected work">Auswahl</span>
+                <span data-de="Ausgewählte Projekte" data-en="Selected work">Ausgewählte Projekte</span>
                 <h2 id="projects-title" data-de="Projekte" data-en="Projects">Projekte</h2>
             </div>
 
