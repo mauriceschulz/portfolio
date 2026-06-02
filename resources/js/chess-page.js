@@ -43,7 +43,7 @@ const labelByEngineType = {
 const text = {
     de: {
         thinking: 'Denkt',
-        connectEngine: 'Engine verbinden',
+        connectEngine: 'Warte auf Spielstart',
         noActiveGame: 'Keine aktive Partie',
         noMoves: 'Noch keine Züge',
         engineOfflineSuffix: 'Starte die Spring Boot Engine auf Port 8080 und erstelle danach eine neue Partie.',
@@ -53,7 +53,7 @@ const text = {
         draw: 'Remis',
         stalemate: 'Patt',
         resigned: 'Aufgegeben',
-        connecting: 'Verbindet',
+        connecting: 'Verbunden',
         toMove: 'am Zug',
         terminalEmpty: 'Noch keine Engine-Kommunikation. Starte eine neue Partie oder spiele einen Zug.',
         request: 'Request',
@@ -68,7 +68,7 @@ const text = {
     },
     en: {
         thinking: 'Thinking',
-        connectEngine: 'Connect the engine',
+        connectEngine: 'Waiting for game start',
         noActiveGame: 'No active game',
         noMoves: 'No moves yet',
         engineOfflineSuffix: 'Start the Spring Boot engine on port 8080, then create a new game.',
@@ -78,7 +78,7 @@ const text = {
         draw: 'Draw',
         stalemate: 'Stalemate',
         resigned: 'Resigned',
-        connecting: 'Connecting',
+        connecting: 'Connected',
         toMove: 'to move',
         terminalEmpty: 'No engine communication yet. Start a new game or play a move.',
         request: 'Request',
@@ -408,6 +408,12 @@ function renderCheckmateScreen() {
 }
 
 function renderCaptured() {
+    if (!state.game) {
+        elements.capturedWhite.innerHTML = '<span class="captured-empty">-</span>';
+        elements.capturedBlack.innerHTML = '<span class="captured-empty">-</span>';
+        return;
+    }
+
     const board = parsePlacement(state.game?.fen || '8/8/8/8/8/8/8/8');
     const counts = { white: { ...startMaterial }, black: { ...startMaterial } };
 
