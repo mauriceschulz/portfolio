@@ -1,59 +1,180 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Maurice Schulz Portfolio
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Personal portfolio built with Laravel and Vite. It presents selected software projects, links to the related repositories, and includes an interactive chess demo that connects the Laravel frontend to my separate Spring Boot chess engine API.
 
-## About Laravel
+**Live site:** [mauriceschulz.dev](https://mauriceschulz.dev)
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Highlights
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- Responsive portfolio homepage for fullstack, backend and API projects
+- German and English UI text with a persistent language switcher
+- Project cards for Domain Harbor, Chess Engine API, Mikrocontroller Quiz and XRechnung API
+- Interactive chess page with board UI, move history, captured pieces and API communication log
+- Laravel proxy routes for the external chess engine service
+- Vite/Tailwind frontend build with custom CSS for the portfolio and chess views
+- Dockerized deployment setup with PHP-FPM, Nginx and PostgreSQL
+- GitHub Actions deployment to the server
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Tech Stack
 
-## Learning Laravel
+- PHP 8.3
+- Laravel 12
+- Blade
+- Tailwind CSS 4
+- Vite 7
+- chess.js
+- PostgreSQL 16
+- Docker / Docker Compose
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## Run Locally
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Requirements:
 
-## Laravel Sponsors
+- PHP 8.2+
+- Composer
+- Node.js and npm
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Install dependencies:
 
-### Premium Partners
+```bash
+composer install
+npm install
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+Create the environment file and app key:
 
-## Contributing
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+For a simple local setup without PostgreSQL, use SQLite:
 
-## Code of Conduct
+```bash
+touch database/database.sqlite
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Then update `.env`:
 
-## Security Vulnerabilities
+```text
+DB_CONNECTION=sqlite
+DB_DATABASE=/absolute/path/to/portfolio/database/database.sqlite
+CACHE_STORE=array
+QUEUE_CONNECTION=sync
+SESSION_DRIVER=file
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Run migrations if you want the default Laravel tables available:
 
-## License
+```bash
+php artisan migrate
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Start the Laravel server and Vite:
+
+```bash
+php artisan serve
+npm run dev
+```
+
+Open:
+
+```text
+http://localhost:8000
+```
+
+## Chess Engine Integration
+
+The chess page is available at:
+
+```text
+http://localhost:8000/chess
+```
+
+It sends game and move requests through the Laravel app:
+
+```text
+GET  /api/health
+POST /api/games
+POST /api/games/{gameId}/moves
+```
+
+Those routes proxy to the Spring Boot chess engine API. Configure the backend URL with:
+
+```text
+CHESS_ENGINE_URL=http://localhost:8080
+```
+
+The matching engine repository is available here:
+
+[mauriceschulz/chess-engine-api](https://github.com/mauriceschulz/chess-engine-api)
+
+## Docker
+
+Build and start the production-style stack:
+
+```bash
+docker compose up -d --build
+```
+
+The compose setup runs:
+
+- `app`: PHP-FPM Laravel container
+- `nginx`: public web server
+- `db`: PostgreSQL database
+
+The Nginx configuration expects SSL files for `mauriceschulz.dev` mounted at:
+
+```text
+/etc/portfolio/ssl
+```
+
+This setup is primarily intended for the deployed server. For day-to-day local development, the `php artisan serve` and `npm run dev` workflow is simpler.
+
+## Verification
+
+Run the Laravel test suite:
+
+```bash
+php artisan test
+```
+
+Build the frontend assets:
+
+```bash
+npm run build
+```
+
+Useful smoke checks:
+
+```bash
+curl -I http://localhost:8000/
+curl -I http://localhost:8000/chess
+curl http://localhost:8000/api/health
+```
+
+Expected results:
+
+- `/` returns the portfolio homepage
+- `/chess` returns the chess demo page
+- `/api/health` returns the proxied chess engine health response when the engine is running
+
+## Deployment
+
+The GitHub Actions workflow is located at `.github/workflows/deploy.yml` and deploys every push to `main` to `/opt/portfolio`.
+
+Required repository secrets:
+
+```text
+SSH_PRIVATE_KEY
+CLONE_GITHUB_PRIVATE_KEY
+SERVER_IP
+DB_PASSWORD
+APP_KEY
+```
+
+During deployment the workflow writes the production `.env`, points `CHESS_ENGINE_URL` to the chess engine container, and rebuilds the Docker Compose stack.
+
+## Project Status
+
+This repository is the main portfolio shell for my current project demos. The chess experience depends on the separate chess engine API, while the homepage itself stays intentionally lightweight and static.
