@@ -33,6 +33,7 @@ services:
       - portfolio-public:/var/www/html/public
     networks:
       - portfolio-network
+      - public-edge
     depends_on:
       - app
 
@@ -48,6 +49,9 @@ services:
 networks:
   portfolio-network:
     driver: bridge
+  public-edge:
+    external: true
+    name: public-edge
 
 volumes:
   db-data:
